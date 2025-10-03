@@ -1,19 +1,11 @@
-# Используем Node.js образ и устанавливаем n8n вручную
+# Используем официальный образ Node.js
 FROM node:18-alpine
 
-# Устанавливаем зависимости и n8n
-RUN apk add --no-cache bash && \
-    npm install -g n8n
+# Устанавливаем n8n глобально
+RUN npm install -g n8n
 
 # Создаем пользователя и рабочую директорию
-RUN adduser -D -h /home/node -s /bin/bash node && \
-    mkdir -p /home/node/.n8n && \
-    chown -R node:node /home/node
-
-# Переключаемся на пользователя node
-USER node
-
-# Устанавливаем рабочую директорию
+RUN adduser -D -h /home/node -s /bin/bash node
 WORKDIR /home/node
 
 # Устанавливаем переменные окружения
@@ -24,8 +16,11 @@ ENV N8N_PORT=$PORT
 ENV WEBHOOK_URL=https://your-app-name.railway.app
 ENV N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=false
 
-# Открываем порт
-EXPOSE $PORT
+# Переключаемся на пользователя node
+USER node
+
+# Создаем папку для данных n8n
+RUN mkdir -p /home/node/.n8n
 
 # Запускаем n8n
 CMD ["n8n", "start"]
